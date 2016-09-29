@@ -13,11 +13,12 @@ export module Log {
 
         static ERR_MISSING_SOURCE: string = Constants.ERR_MISSING_SMTH + " 'source'.";
         static ERR_MISSING_ENABLED_FLAG: string = Constants.ERR_MISSING_SMTH + " 'enabled'.";
+        static ERR_ALREADY_ENABLED_OR_DISABLED: string = "Logger already enabled/disabled.";
     }
 
     class Util {
         private static getCurrentDate(): string {
-            return (new Date()).getDate().toString();
+            return (new Date()).toDateString();
         }
         static log(_message: string, _source?: string, _dateString?: string) {
             console.log(Util.message(_message, _source, _dateString));
@@ -28,8 +29,13 @@ export module Log {
     }
 
     class Errors {
-        static ERR_MISSING_SOURCE: Error = new Error(Constants.ERR_MISSING_SOURCE);
-        static ERR_MISSING_ENABLED_FLAG: Error = new Error(Constants.ERR_MISSING_ENABLED_FLAG);
+        static ERR_MISSING_SOURCE: Error = Errors.create(Constants.ERR_MISSING_SOURCE);
+        static ERR_MISSING_ENABLED_FLAG: Error = Errors.create(Constants.ERR_MISSING_ENABLED_FLAG);
+        static ERR_ALREADY_ENABLED_OR_DISABLED: Error = Errors.create(Constants.ERR_ALREADY_ENABLED_OR_DISABLED);
+
+        private static create(_desc: string): Error {
+            return new Error(_desc);
+        }
     }
 
     export class LoggerBuilder {
@@ -84,7 +90,7 @@ export module Log {
                     Constants.MES_LOGGER_DISABLED;
                 Util.log(message);
                 Logger.enabled = _state;
-            }
+            } else throw Errors.ERR_ALREADY_ENABLED_OR_DISABLED;
         }
         static on() {
             Logger.switchTo(true);
